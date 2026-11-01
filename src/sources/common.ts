@@ -6,13 +6,17 @@ export interface SourceContext {
 }
 
 export interface SourceQuery {
-  source: "github" | "jira" | "linear";
+  source: "github" | "jira" | "linear" | "azure-devops";
   /** GitHub: "owner/name". */
   repo?: string;
   /** Jira: full JQL. Overrides project/fixVersion/since/until when given. */
   jql?: string;
-  /** Jira project key, e.g. "PAY". */
+  /** Azure DevOps: full WIQL. Overrides project/iteration/since/until when given. */
+  wiql?: string;
+  /** Jira project key ("PAY") or Azure DevOps project name ("Payments"). */
   project?: string;
+  /** Azure DevOps iteration path; includes child iterations, e.g. "Payments\\Sprint 42". */
+  iteration?: string;
   /** Jira fix version, e.g. "2.4.0". */
   fixVersion?: string;
   /** Linear team key, e.g. "ENG". */

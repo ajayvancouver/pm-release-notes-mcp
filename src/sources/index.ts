@@ -1,5 +1,6 @@
 import type { WorkItem } from "../types.js";
 import type { SourceContext, SourceQuery } from "./common.js";
+import { fetchAzureDevOps } from "./azure-devops.js";
 import { fetchGitHub } from "./github.js";
 import { fetchJira } from "./jira.js";
 import { fetchLinear } from "./linear.js";
@@ -14,5 +15,7 @@ export async function fetchWorkItems(query: SourceQuery, ctx: SourceContext): Pr
       return fetchJira(query, ctx);
     case "linear":
       return fetchLinear(query, ctx);
+    case "azure-devops":
+      return fetchAzureDevOps(query, ctx);
   }
 }

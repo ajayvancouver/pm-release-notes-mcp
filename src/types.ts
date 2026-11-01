@@ -1,9 +1,9 @@
 /**
  * A tracker-agnostic unit of shipped work. Every source adapter (GitHub, Jira,
- * Linear) maps its own issue shape onto this, so categorisation and rendering
+ * Linear, Azure DevOps) maps its own issue shape onto this, so categorisation and rendering
  * never need to know where an item came from.
  */
-export type SourceName = "github" | "jira" | "linear" | "manual";
+export type SourceName = "github" | "jira" | "linear" | "azure-devops" | "manual";
 
 export interface WorkItem {
   /** Human-facing key, e.g. "#123", "PAY-42", "ENG-7". */

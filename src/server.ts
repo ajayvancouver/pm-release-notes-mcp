@@ -13,11 +13,19 @@ export interface ServerOptions {
 }
 
 const sourceQueryShape = {
-  source: z.enum(["github", "jira", "linear"]).describe("Which tracker to read from."),
+  source: z.enum(["github", "jira", "linear", "azure-devops"]).describe("Which tracker to read from."),
   repo: z.string().optional().describe('GitHub only: repository as "owner/name".'),
   jql: z.string().optional().describe("Jira only: custom JQL. Overrides project, fixVersion and dates."),
-  project: z.string().optional().describe('Jira only: project key, e.g. "PAY".'),
+  wiql: z.string().optional().describe("Azure DevOps only: custom WIQL. Overrides project, iteration and dates."),
+  project: z
+    .string()
+    .optional()
+    .describe('Jira project key (e.g. "PAY") or Azure DevOps project name (e.g. "Payments").'),
   fixVersion: z.string().optional().describe('Jira only: fix version, e.g. "2.4.0".'),
+  iteration: z
+    .string()
+    .optional()
+    .describe('Azure DevOps only: iteration path, including child iterations, e.g. "Payments\\Sprint 42".'),
   team: z.string().optional().describe('Linear only: team key, e.g. "ENG".'),
   since: z.string().optional().describe("Include work closed on or after this date (YYYY-MM-DD)."),
   until: z.string().optional().describe("Include work closed on or before this date (YYYY-MM-DD)."),
@@ -41,8 +49,8 @@ const errorResult = (message: string) => ({
 
 function toQuery(args: Partial<SourceQuery> & { source?: SourceQuery["source"] }): SourceQuery | undefined {
   if (!args.source) return undefined;
-  const { source, repo, jql, project, fixVersion, team, since, until, limit } = args;
-  return { source, repo, jql, project, fixVersion, team, since, until, limit };
+  const { source, repo, jql, wiql, project, fixVersion, iteration, team, since, until, limit } = args;
+  return { source, repo, jql, wiql, project, fixVersion, iteration, team, since, until, limit };
 }
 
 export function createServer(options: ServerOptions = {}): McpServer {
@@ -58,7 +66,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
     {
       title: "Fetch shipped work items",
       description:
-        "Read completed issues and merged pull requests from GitHub, Jira or Linear for a date range or fix version. Read-only.",
+        "Read completed issues, work items and merged pull requests from GitHub, Jira, Linear or Azure DevOps for a date range, fix version or iteration. Read-only.",
       inputSchema: sourceQueryShape,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },

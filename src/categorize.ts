@@ -27,9 +27,9 @@ const LABEL_RULES: Array<{ category: Category; pattern: RegExp }> = [
 
 const TYPE_RULES: Array<{ category: Category; pattern: RegExp }> = [
   { category: "fix", pattern: /^(bug|defect|incident|problem)$/i },
-  { category: "feature", pattern: /^(story|feature|new feature|epic|user story)$/i },
+  { category: "feature", pattern: /^(story|feature|new feature|epic|user story|product backlog item|requirement)$/i },
   { category: "improvement", pattern: /^(improvement|enhancement)$/i },
-  { category: "internal", pattern: /^(sub-?task|technical task|spike|tech debt|chore)$/i },
+  { category: "internal", pattern: /^(sub-?task|technical task|spike|tech debt|chore|test case|test plan|test suite)$/i },
 ];
 
 export function cleanTitle(title: string): string {
