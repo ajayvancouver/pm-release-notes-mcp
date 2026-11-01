@@ -1,0 +1,47 @@
+{
+  "name": "pm-release-notes-mcp",
+  "version": "0.1.0",
+  "description": "MCP server that turns closed GitHub, Jira and Linear work items into release notes customers can actually read.",
+  "type": "module",
+  "bin": {
+    "pm-release-notes-mcp": "dist/index.js"
+  },
+  "main": "dist/server.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "release-notes",
+    "changelog",
+    "product-management",
+    "github",
+    "jira",
+    "linear"
+  ],
+  "author": "Ajay Agrawal",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ajayvancouver/pm-release-notes-mcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
