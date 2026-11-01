@@ -1,6 +1,6 @@
 # pm-release-notes-mcp
 
-An [MCP](https://modelcontextprotocol.io) server that turns the work your team closed in **GitHub, Jira or Linear** into release notes customers can read, with a review list so nothing ships without a human looking at it.
+An [MCP](https://modelcontextprotocol.io) server that turns the work your team closed in **GitHub, Jira, Linear or Azure DevOps** into release notes customers can read, with a review list so nothing ships without a human looking at it.
 
 Ask your AI assistant *"Draft customer release notes for PAY fix version 2.4.0"* and you get back:
 
@@ -43,8 +43,8 @@ LLMs are good at the rewriting part and risky at the rest. Asked to "write relea
 - **Read-only.** Both tools are annotated `readOnlyHint`. The server never writes to a tracker or posts anywhere. Release notes are a public commitment, so publishing stays a human action.
 - **Rules before AI for classification.** Labels beat conventional-commit prefixes, which beat issue type. That order follows intent: a label is something your team chose deliberately; an issue type is often a default. Breaking changes are checked first because missing one is the most expensive mistake.
 - **Two audiences.** Customer notes drop internal work and ticket keys and lead with breaking changes. Internal notes keep everything, with links, for support and sales.
-- **"Shipped" means shipped.** GitHub issues closed as *not planned* or *duplicate* and unmerged PRs are excluded.
-- **Same model for every tracker.** GitHub, Jira and Linear all map to one `WorkItem` shape, so adding another tracker means writing one adapter, not touching the rules.
+- **"Shipped" means shipped.** GitHub issues closed as *not planned* or *duplicate* and unmerged PRs are excluded. In Azure DevOps, only work items in a completed state (`Done` or `Closed`) count; *Removed* items never do.
+- **Same model for every tracker.** GitHub, Jira, Linear and Azure DevOps all map to one `WorkItem` shape, so adding another tracker means writing one adapter, not touching the rules.
 
 ## Tools
 
@@ -54,10 +54,11 @@ Categorises work and returns a Markdown draft plus a review list.
 
 | Argument | Notes |
 | --- | --- |
-| `source` | `github`, `jira` or `linear`. Omit if passing `items`. |
+| `source` | `github`, `jira`, `linear` or `azure-devops`. Omit if passing `items`. |
 | `repo` | GitHub: `owner/name` |
 | `project`, `fixVersion`, `jql` | Jira: project key and fix version, or your own JQL |
 | `team` | Linear: team key, e.g. `ENG` |
+| `project`, `iteration`, `wiql` | Azure DevOps: project name and iteration path (child iterations included), or your own WIQL |
 | `since`, `until` | Date range (`YYYY-MM-DD`, inclusive) on when work was closed |
 | `items` | Or pass work items directly: `{ id, title, labels, type?, url? }` |
 | `audience` | `customer` (default) or `internal` |
@@ -79,8 +80,10 @@ Checked in this order; the first match wins and is recorded as the item's `reaso
 1. **Breaking:** `feat!:` / `fix!:` prefixes, `BREAKING` in the title, or a `breaking` label
 2. **Labels:** `security`, internal labels (`chore`, `refactor`, `tech-debt`, `skip-changelog`…), `bug`, `feature`, `enhancement`…
 3. **Conventional-commit prefixes:** `feat:`, `fix:`, `perf:`, `chore:`, `refactor:`…
-4. **Issue type:** Jira `Bug`, `Story`, `Improvement`, `Sub-task`…
+4. **Issue or work item type:** `Bug`, `Story`, `User Story`, `Product Backlog Item`, `Improvement`, `Sub-task`…
 5. Otherwise **Other**, and the item is listed for review
+
+Azure DevOps tags are treated as labels, so a `breaking` or `internal` tag works the same way as a Jira or GitHub label.
 
 ## Setup
 
@@ -106,7 +109,9 @@ Add it to your MCP client. For Claude Desktop, edit `claude_desktop_config.json`
         "JIRA_BASE_URL": "https://your-company.atlassian.net",
         "JIRA_EMAIL": "you@company.com",
         "JIRA_API_TOKEN": "…",
-        "LINEAR_API_KEY": "lin_api_…"
+        "LINEAR_API_KEY": "lin_api_…",
+        "AZURE_DEVOPS_ORG": "your-org",
+        "AZURE_DEVOPS_PAT": "…"
       }
     }
   }
@@ -120,12 +125,14 @@ Only set the variables for the trackers you use. `GITHUB_TOKEN` is optional for 
 | GitHub | Fine-grained token with read access to issues and pull requests |
 | Jira Cloud | [API token](https://id.atlassian.com/manage-profile/security/api-tokens) plus the email it belongs to |
 | Linear | Personal API key from your Linear account settings |
+| Azure DevOps | [Personal access token](https://learn.microsoft.com/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with the **Work Items (Read)** scope. `AZURE_DEVOPS_ORG` is your organisation name, or its full URL for older `*.visualstudio.com` organisations |
 
 ## Example requests
 
 - "Draft customer release notes for everything merged in acme/web since 2026-10-01."
 - "Internal release notes for Jira project PAY, fix version 2.4.0, with links."
 - "What did the ENG team in Linear complete last sprint? List anything you couldn't categorise."
+- "Customer release notes for Azure DevOps project Payments, iteration Payments\\Sprint 42."
 - "Draft notes for PAY 2.4.0, then use polish_release_notes to make them friendly."
 
 ## Development
@@ -140,7 +147,7 @@ Tests cover the categorisation rules, rendering, each tracker adapter (with mock
 
 ## Roadmap
 
-- Group items by Jira epic or Linear project as "themes"
+- Group items by Jira epic, Linear project or Azure DevOps feature as "themes"
 - Read per-team label conventions from a config file
 - Optional draft-to-Confluence/Notion, behind an explicit approval step
 

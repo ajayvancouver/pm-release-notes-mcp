@@ -1,7 +1,7 @@
 {
   "name": "pm-release-notes-mcp",
   "version": "0.1.0",
-  "description": "MCP server that turns closed GitHub, Jira and Linear work items into release notes customers can actually read.",
+  "description": "MCP server that turns closed GitHub, Jira, Linear and Azure DevOps work items into release notes customers can actually read.",
   "type": "module",
   "bin": {
     "pm-release-notes-mcp": "dist/index.js"
@@ -27,7 +27,8 @@
     "product-management",
     "github",
     "jira",
-    "linear"
+    "linear",
+    "azure-devops"
   ],
   "author": "Ajay Agrawal",
   "license": "MIT",
